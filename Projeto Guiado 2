@@ -1,0 +1,435 @@
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f4f4f4;
+  margin: 0;
+  padding: 0;
+}
+
+.container {
+  max-width: 800px;
+  margin: 20px auto;
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 5px;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+  text-align: center;
+  color: #333;
+}
+
+.livros,
+.emprestimos {
+  margin-top: 20px;
+}
+
+h2 {
+  color: #007bff;
+}
+
+ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+li {
+  margin-bottom: 10px;
+  padding: 10px;
+  background-color: #f9f9f9;
+  border-radius: 5px;
+  box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1);
+}
+
+li span {
+  font-weight: bold;
+}
+
+Comment
+ 
+Leave a comment
+ 
+ 75 changes: 75 additions & 0 deletions75  
+index.html
+@@ -0,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Biblioteca</title>
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="container">
+      <h1 class="heading">Biblioteca do Afrocódigos</h1>
+
+      <div class="card">
+        <h2 class="card-heading">Alugar Livro</h2>
+        <form id="alugarLivroForm" class="form">
+          <div class="form-control">
+            <label for="livro">Livro:</label>
+            <select id="livro" name="livro" class="select">
+              <!-- Opções de livros serão adicionadas dinamicamente aqui -->
+            </select>
+          </div>
+
+          <div class="form-control">
+            <label for="matricula">Matrícula:</label>
+            <input
+              type="text"
+              id="matricula"
+              name="matricula"
+              class="input"
+              required
+            />
+          </div>
+
+          <div class="form-control">
+            <label for="senha">Senha:</label>
+            <input
+              type="password"
+              id="senha"
+              name="senha"
+              class="input"
+              required
+            />
+          </div>
+
+          <button type="submit" class="button">Alugar Livro</button>
+        </form>
+      </div>
+
+      <div class="card">
+        <h2 class="card-heading">Livros Disponíveis</h2>
+        <ul id="livrosDisponiveis" class="list">
+          <!-- Livros disponíveis serão listados dinamicamente aqui -->
+        </ul>
+      </div>
+
+      <div class="card">
+        <h2 class="card-heading">Empréstimos Ativos</h2>
+        <ul id="emprestimosAtivos" class="list">
+          <!-- Empréstimos ativos serão listados dinamicamente aqui -->
+        </ul>
+      </div>
+    </div>
+
+    <script src="dist/index.js"></script>
+    <script src="dist/biblioteca.js"></script>
+    <script src="dist/emprestimo.js"></script>
+    <script src="dist/livro.js"></script>
+    <script src="dist/usuario.js"></script>
+    <script src="dist/aluno.js"></script>
+  </body>
+</html>
+ 38 changes: 38 additions & 0 deletions38  
+src/biblioteca.ts
+@@ -0,0 +1,38 @@
+/*
+  // --------- [Não mexer] Responsaveis por renderizar no html
+  private renderizarLivrosDisponiveis(): void {
+    this.livrosDisponiveisElement.innerHTML = "";
+    const disponiveis = this.livros.filter((livro) => livro.disponivel);
+    const selectLivro = document.getElementById("livro") as HTMLSelectElement;
+    selectLivro.innerHTML = "";
+    disponiveis.forEach((livro) => {
+      // Atualizar lista
+      this.livrosDisponiveisElement.appendChild(livro.criarElementoHTML());
+      // Preencher select
+      const option = document.createElement("option");
+      option.value = String(livro.id); // Define o valor da opção como o ID do livro
+      option.textContent = livro.titulo; // Define o texto da opção como o título do livro
+      selectLivro.appendChild(option);
+    });
+  }
+  private renderizarEmprestimosAtivos(): void {
+    this.emprestimosAtivosElement.innerHTML = "";
+    this.emprestimos.forEach((emprestimo) => {
+      const li = document.createElement("li");
+      li.textContent = `Livro: ${emprestimo.livro.titulo}, Usuário: ${
+        emprestimo.aluno.nome
+      }, Data de Devolução: ${emprestimo.dataDevolucao.toDateString()}`;
+      this.emprestimosAtivosElement.appendChild(li);
+    });
+  }
+  // --------- [Não mexer] Responsaveis por renderizar no html
+  */
+ 60 changes: 60 additions & 0 deletions60  
+src/index.ts
+@@ -0,0 +1,60 @@
+document.addEventListener("DOMContentLoaded", () => {
+  const livrosDisponiveisElement = document.getElementById(
+    "livrosDisponiveis"
+  ) as HTMLUListElement;
+  const emprestimosAtivosElement = document.getElementById(
+    "emprestimosAtivos"
+  ) as HTMLUListElement;
+
+  const biblioteca = new Biblioteca(
+    livrosDisponiveisElement,
+    emprestimosAtivosElement
+  );
+
+  const livro1 = new Livro(1, "A Revolução dos Bichos", "George Orwell");
+  const livro2 = new Livro(2, "O Senhor dos Anéis", "J.R.R. Tolkien");
+  const livro3 = new Livro(3, "Harry Potter", "J.K. Rowling");
+  const livro4 = new Livro(4, "1984", "George Orwell");
+  const livro5 = new Livro(5, "Dom Quixote", "Miguel de Cervantes");
+  const livro6 = new Livro(6, "Orgulho e Preconceito", "Jane Austen");
+  const livro7 = new Livro(7, "Crime e Castigo", "Fyodor Dostoevsky");
+  const livro8 = new Livro(8, "O Pequeno Príncipe", "Antoine de Saint-Exupéry");
+  const livro9 = new Livro(9, "Cem Anos de Solidão", "Gabriel García Márquez");
+
+  biblioteca.adicionarLivro(livro1);
+  biblioteca.adicionarLivro(livro2);
+  biblioteca.adicionarLivro(livro3);
+  biblioteca.adicionarLivro(livro4);
+  biblioteca.adicionarLivro(livro5);
+  biblioteca.adicionarLivro(livro6);
+  biblioteca.adicionarLivro(livro7);
+  biblioteca.adicionarLivro(livro8);
+  biblioteca.adicionarLivro(livro9);
+
+  const aluno1 = new Aluno("Lisandra", "lisandra@example.com", "A28", "123");
+  const aluno2 = new Aluno("Maria", "maria@example.com", "A29", "123");
+
+  biblioteca.adicionarAluno(aluno1);
+  biblioteca.adicionarAluno(aluno2);
+
+  const alugarLivroForm = document.getElementById(
+    "alugarLivroForm"
+  ) as HTMLFormElement;
+
+  alugarLivroForm.addEventListener("submit", (event) => {
+    event.preventDefault();
+
+    const idLivroSelecionado = parseInt(
+      (document.getElementById("livro") as HTMLSelectElement).value
+    );
+    const matricula = (document.getElementById("matricula") as HTMLInputElement)
+      .value;
+    const senha = (document.getElementById("senha") as HTMLInputElement).value;
+
+    const livro = (biblioteca.encontrarLivro(idLivroSelecionado) ||
+      {}) as Livro;
+    const aluno = (biblioteca.encontrarAluno(matricula) || {}) as Aluno;
+
+    biblioteca.realizarEmprestimo(livro, aluno, senha);
+  });
+});
+ 13 changes: 13 additions & 0 deletions13  
+src/livro.ts
+@@ -0,0 +1,13 @@
+/*
+// --------- [Não mexer] Responsaveis por renderizar no html
+criarElementoHTML(): HTMLLIElement {
+  const li = document.createElement("li");
+  li.innerHTML = `<span>${this.titulo}</span> (Autor: ${this.autor})`;
+  li.classList.add("livro-item");
+  if (!this.disponivel) {
+    li.classList.add("emprestado");
+  }
+  return li;
+}
+// --------- [Não mexer] Responsaveis por renderizar no html
+*/
+ 80 changes: 80 additions & 0 deletions80  
+styles.css
+@@ -0,0 +1,80 @@
+body {
+  font-family: 'Roboto', sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #f5f5f5;
+}
+
+.container {
+  max-width: 800px;
+  margin: 20px auto;
+  padding: 20px;
+}
+
+.heading {
+  text-align: center;
+}
+
+.card {
+  background-color: #fff;
+  margin-bottom: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.card-heading {
+  background-color: #4caf50;
+  color: #fff;
+  padding: 10px;
+  margin: 0;
+  border-radius: 8px 8px 0 0;
+}
+
+.form {
+  padding: 20px;
+}
+
+.form-control {
+  margin-bottom: 15px;
+}
+
+.label {
+  display: block;
+  margin-bottom: 5px;
+  color: #333;
+}
+
+.input,
+.select {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+.button {
+  background-color: #4caf50;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.button:hover {
+  background-color: #45a049;
+}
+
+.list {
+  list-style-type: none;
+  padding: 0;
+}
+
+.list li {
+  padding: 10px;
+  margin-bottom: 5px;
+  background-color: #f9f9f9;
+  border-radius: 4px;
+}
+ 109 changes: 109 additions & 0 deletions109  
+tsconfig.json
+@@ -0,0 +1,109 @@
+{
+  "compilerOptions": {
+    /* Visit https://aka.ms/tsconfig to read more about this file */
+
+    /* Projects */
+    // "incremental": true,                              /* Save .tsbuildinfo files to allow for incremental compilation of projects. */
+    // "composite": true,                                /* Enable constraints that allow a TypeScript project to be used with project references. */
+    // "tsBuildInfoFile": "./.tsbuildinfo",              /* Specify the path to .tsbuildinfo incremental compilation file. */
+    // "disableSourceOfProjectReferenceRedirect": true,  /* Disable preferring source files instead of declaration files when referencing composite projects. */
+    // "disableSolutionSearching": true,                 /* Opt a project out of multi-project reference checking when editing. */
+    // "disableReferencedProjectLoad": true,             /* Reduce the number of projects loaded automatically by TypeScript. */
+
+    /* Language and Environment */
+    "target": "es2016" /* Set the JavaScript language version for emitted JavaScript and include compatible library declarations. */,
+    // "lib": [],                                        /* Specify a set of bundled library declaration files that describe the target runtime environment. */
+    // "jsx": "preserve",                                /* Specify what JSX code is generated. */
+    // "experimentalDecorators": true,                   /* Enable experimental support for legacy experimental decorators. */
+    // "emitDecoratorMetadata": true,                    /* Emit design-type metadata for decorated declarations in source files. */
+    // "jsxFactory": "",                                 /* Specify the JSX factory function used when targeting React JSX emit, e.g. 'React.createElement' or 'h'. */
+    // "jsxFragmentFactory": "",                         /* Specify the JSX Fragment reference used for fragments when targeting React JSX emit e.g. 'React.Fragment' or 'Fragment'. */
+    // "jsxImportSource": "",                            /* Specify module specifier used to import the JSX factory functions when using 'jsx: react-jsx*'. */
+    // "reactNamespace": "",                             /* Specify the object invoked for 'createElement'. This only applies when targeting 'react' JSX emit. */
+    // "noLib": true,                                    /* Disable including any library files, including the default lib.d.ts. */
+    // "useDefineForClassFields": true,                  /* Emit ECMAScript-standard-compliant class fields. */
+    // "moduleDetection": "auto",                        /* Control what method is used to detect module-format JS files. */
+
+    /* Modules */
+    "module": "commonjs" /* Specify what module code is generated. */,
+    "rootDir": "./src" /* Specify the root folder within your source files. */,
+    // "moduleResolution": "node10",                     /* Specify how TypeScript looks up a file from a given module specifier. */
+    // "baseUrl": "./",                                  /* Specify the base directory to resolve non-relative module names. */
+    // "paths": {},                                      /* Specify a set of entries that re-map imports to additional lookup locations. */
+    // "rootDirs": [],                                   /* Allow multiple folders to be treated as one when resolving modules. */
+    // "typeRoots": [],                                  /* Specify multiple folders that act like './node_modules/@types'. */
+    // "types": [],                                      /* Specify type package names to be included without being referenced in a source file. */
+    // "allowUmdGlobalAccess": true,                     /* Allow accessing UMD globals from modules. */
+    // "moduleSuffixes": [],                             /* List of file name suffixes to search when resolving a module. */
+    // "allowImportingTsExtensions": true,               /* Allow imports to include TypeScript file extensions. Requires '--moduleResolution bundler' and either '--noEmit' or '--emitDeclarationOnly' to be set. */
+    // "resolvePackageJsonExports": true,                /* Use the package.json 'exports' field when resolving package imports. */
+    // "resolvePackageJsonImports": true,                /* Use the package.json 'imports' field when resolving imports. */
+    // "customConditions": [],                           /* Conditions to set in addition to the resolver-specific defaults when resolving imports. */
+    // "resolveJsonModule": true,                        /* Enable importing .json files. */
+    // "allowArbitraryExtensions": true,                 /* Enable importing files with any extension, provided a declaration file is present. */
+    // "noResolve": true,                                /* Disallow 'import's, 'require's or '<reference>'s from expanding the number of files TypeScript should add to a project. */
+
+    /* JavaScript Support */
+    // "allowJs": true,                                  /* Allow JavaScript files to be a part of your program. Use the 'checkJS' option to get errors from these files. */
+    // "checkJs": true,                                  /* Enable error reporting in type-checked JavaScript files. */
+    // "maxNodeModuleJsDepth": 1,                        /* Specify the maximum folder depth used for checking JavaScript files from 'node_modules'. Only applicable with 'allowJs'. */
+
+    /* Emit */
+    // "declaration": true,                              /* Generate .d.ts files from TypeScript and JavaScript files in your project. */
+    // "declarationMap": true,                           /* Create sourcemaps for d.ts files. */
+    // "emitDeclarationOnly": true,                      /* Only output d.ts files and not JavaScript files. */
+    // "sourceMap": true,                                /* Create source map files for emitted JavaScript files. */
+    // "inlineSourceMap": true,                          /* Include sourcemap files inside the emitted JavaScript. */
+    // "outFile": "./",                                  /* Specify a file that bundles all outputs into one JavaScript file. If 'declaration' is true, also designates a file that bundles all .d.ts output. */
+    "outDir": "./dist" /* Specify an output folder for all emitted files. */,
+    // "removeComments": true,                           /* Disable emitting comments. */
+    // "noEmit": true,                                   /* Disable emitting files from a compilation. */
+    // "importHelpers": true,                            /* Allow importing helper functions from tslib once per project, instead of including them per-file. */
+    // "importsNotUsedAsValues": "remove",               /* Specify emit/checking behavior for imports that are only used for types. */
+    // "downlevelIteration": true,                       /* Emit more compliant, but verbose and less performant JavaScript for iteration. */
+    // "sourceRoot": "",                                 /* Specify the root path for debuggers to find the reference source code. */
+    // "mapRoot": "",                                    /* Specify the location where debugger should locate map files instead of generated locations. */
+    // "inlineSources": true,                            /* Include source code in the sourcemaps inside the emitted JavaScript. */
+    // "emitBOM": true,                                  /* Emit a UTF-8 Byte Order Mark (BOM) in the beginning of output files. */
+    // "newLine": "crlf",                                /* Set the newline character for emitting files. */
+    // "stripInternal": true,                            /* Disable emitting declarations that have '@internal' in their JSDoc comments. */
+    // "noEmitHelpers": true,                            /* Disable generating custom helper functions like '__extends' in compiled output. */
+    "noEmitOnError": true /* Disable emitting files if any type checking errors are reported. */,
+    // "preserveConstEnums": true,                       /* Disable erasing 'const enum' declarations in generated code. */
+    // "declarationDir": "./",                           /* Specify the output directory for generated declaration files. */
+    // "preserveValueImports": true,                     /* Preserve unused imported values in the JavaScript output that would otherwise be removed. */
+
+    /* Interop Constraints */
+    // "isolatedModules": true,                          /* Ensure that each file can be safely transpiled without relying on other imports. */
+    // "verbatimModuleSyntax": true,                     /* Do not transform or elide any imports or exports not marked as type-only, ensuring they are written in the output file's format based on the 'module' setting. */
+    // "allowSyntheticDefaultImports": true,             /* Allow 'import x from y' when a module doesn't have a default export. */
+    "esModuleInterop": true /* Emit additional JavaScript to ease support for importing CommonJS modules. This enables 'allowSyntheticDefaultImports' for type compatibility. */,
+    // "preserveSymlinks": true,                         /* Disable resolving symlinks to their realpath. This correlates to the same flag in node. */
+    "forceConsistentCasingInFileNames": true /* Ensure that casing is correct in imports. */,
+
+    /* Type Checking */
+    "strict": true /* Enable all strict type-checking options. */,
+    "noImplicitAny": true /* Enable error reporting for expressions and declarations with an implied 'any' type. */,
+    // "strictNullChecks": true,                         /* When type checking, take into account 'null' and 'undefined'. */
+    // "strictFunctionTypes": true,                      /* When assigning functions, check to ensure parameters and the return values are subtype-compatible. */
+    // "strictBindCallApply": true,                      /* Check that the arguments for 'bind', 'call', and 'apply' methods match the original function. */
+    // "strictPropertyInitialization": true,             /* Check for class properties that are declared but not set in the constructor. */
+    // "noImplicitThis": true,                           /* Enable error reporting when 'this' is given the type 'any'. */
+    // "useUnknownInCatchVariables": true,               /* Default catch clause variables as 'unknown' instead of 'any'. */
+    // "alwaysStrict": true,                             /* Ensure 'use strict' is always emitted. */
+    // "noUnusedLocals": true,                           /* Enable error reporting when local variables aren't read. */
+    // "noUnusedParameters": true,                       /* Raise an error when a function parameter isn't read. */
+    // "exactOptionalPropertyTypes": true,               /* Interpret optional property types as written, rather than adding 'undefined'. */
+    // "noImplicitReturns": true,                        /* Enable error reporting for codepaths that do not explicitly return in a function. */
+    // "noFallthroughCasesInSwitch": true,               /* Enable error reporting for fallthrough cases in switch statements. */
+    // "noUncheckedIndexedAccess": true,                 /* Add 'undefined' to a type when accessed using an index. */
+    // "noImplicitOverride": true,                       /* Ensure overriding members in derived classes are marked with an override modifier. */
+    // "noPropertyAccessFromIndexSignature": true,       /* Enforces using indexed accessors for keys declared using an indexed type. */
+    // "allowUnusedLabels": true,                        /* Disable error reporting for unused labels. */
+    // "allowUnreachableCode": true,                     /* Disable error reporting for unreachable code. */
+
+    /* Completeness */
+    // "skipDefaultLibCheck": true,                      /* Skip type checking .d.ts files that are included with TypeScript. */
+    "skipLibCheck": true /* Skip type checking all .d.ts files. */
+  }
+}
